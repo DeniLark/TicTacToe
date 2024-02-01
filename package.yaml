@@ -27,6 +27,7 @@ dependencies:
   - scotty
   - text
   - blaze-html
+  - containers
 
 ghc-options:
   - -Wall

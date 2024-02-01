@@ -1,31 +1,35 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Run where
 
-import Styles
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.IORef (modifyIORef, newIORef, readIORef, writeIORef)
+import HTML
 import Text.Blaze.Html.Renderer.Text (renderHtml)
-import qualified Text.Blaze.Html5 as H
-import qualified Text.Blaze.Html5.Attributes as A
+import TicTacToe.Game
 import Web.Scotty
 
 run :: IO ()
-run =
-  scotty 3000 $
-    get "/" $
+run = do
+  gameR <- newIORef initialGameState
+  putStrLn "http://localhost:3000/"
+  scotty 3000 $ do
+    get "/" $ do
+      game <- liftIO $ readIORef gameR
       html $
         renderHtml $
-          H.html $ do
-            H.head $ do
-              H.title "Крестики, нолики"
-              H.style styles
-            H.body $ do
-              H.div H.! A.class_ "container" $ do
-                H.p "Ход игрока: X"
-                H.div H.! A.class_ "game-board" $ do
-                  H.div H.! A.class_ "game-board_cell" $ ""
-                  H.div H.! A.class_ "game-board_cell" $ "x"
-                  H.div H.! A.class_ "game-board_cell" $ ""
-                  H.div H.! A.class_ "game-board_cell" $ ""
-                  H.div H.! A.class_ "game-board_cell" $ "o"
-                  H.div H.! A.class_ "game-board_cell" $ ""
-                  H.div H.! A.class_ "game-board_cell" $ ""
-                  H.div H.! A.class_ "game-board_cell" $ ""
-                  H.div H.! A.class_ "game-board_cell" $ ""
+          case game of
+            Proccess currentPlayer gameBoard ->
+              htmlMainPage currentPlayer gameBoard
+            End player gameBoard ->
+              htmlEndPage player gameBoard
+
+    get "/step" $ do
+      x :: Int <- queryParam "x"
+      y :: Int <- queryParam "y"
+      liftIO $ modifyIORef gameR (stepPlayer (x, y))
+      redirect "/"
+
+    get "/start-again" $ do
+      liftIO $ writeIORef gameR initialGameState
+      redirect "/"
