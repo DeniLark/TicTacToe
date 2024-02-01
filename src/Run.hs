@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Run where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
@@ -29,8 +27,8 @@ run = do
               htmlEndPage player gameBoard
 
     get "/step" $ do
-      x :: Int <- queryParam "x"
-      y :: Int <- queryParam "y"
+      x <- queryParam "x"
+      y <- queryParam "y"
       liftIO $ modifyIORef gameR (stepPlayer (x, y))
       redirect "/"
 

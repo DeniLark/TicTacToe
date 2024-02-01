@@ -1,32 +1,27 @@
-{-# LANGUAGE TupleSections #-}
-
-module TicTacToe.Game where
+module TicTacToe.Game
+  ( GameState (End, Proccess),
+    initialGameState,
+    stepPlayer,
+    module TicTacToe.Player,
+    module TicTacToe.GameBoard,
+  )
+where
 
 import Control.Monad (join)
-import Data.Ix (Ix (range))
-import Data.Map (Map)
 import qualified Data.Map as M
-import Data.Maybe (isNothing)
-import Text.Blaze.Html5 (ToMarkup (toMarkup))
-
-data Player = X | O deriving (Eq)
-
-instance ToMarkup Player where
-  toMarkup X = "X"
-  toMarkup O = "O"
+import TicTacToe.GameBoard
+  ( GameBoard,
+    emptyGameBoard,
+    isFullGameBoard,
+  )
+import TicTacToe.Player (Player (X), swapPlayer)
 
 data GameState
   = Proccess Player GameBoard
   | End (Maybe Player) GameBoard
 
-type GameBoard = Map (Int, Int) (Maybe Player)
-
 initialGameState :: GameState
 initialGameState = Proccess X emptyGameBoard
-
-emptyGameBoard :: GameBoard
-emptyGameBoard =
-  M.fromList $ map (,Nothing) (range ((1, 1), (3, 3)))
 
 stepPlayer :: (Int, Int) -> GameState -> GameState
 stepPlayer _ gs@(End _ _) = gs
@@ -39,10 +34,6 @@ stepPlayer xy (Proccess p gb) = newGameState
         else case getWinner newGameBoard of
           Nothing -> Proccess (swapPlayer p) newGameBoard
           Just p' -> End (Just p') newGameBoard
-
-swapPlayer :: Player -> Player
-swapPlayer X = O
-swapPlayer O = X
 
 getWinner :: GameBoard -> Maybe Player
 getWinner gb =
@@ -76,6 +67,3 @@ getWinner gb =
 
     loockupGB :: (Int, Int) -> Maybe Player
     loockupGB = join . (`M.lookup` gb)
-
-isFullGameBoard :: GameBoard -> Bool
-isFullGameBoard = not . any isNothing . M.elems

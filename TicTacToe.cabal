@@ -29,6 +29,8 @@ library
       Run
       Styles
       TicTacToe.Game
+      TicTacToe.GameBoard
+      TicTacToe.Player
   other-modules:
       Paths_TicTacToe
   autogen-modules:
