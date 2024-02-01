@@ -4,10 +4,14 @@ module Run where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.IORef (modifyIORef, newIORef, readIORef, writeIORef)
-import HTML
+import HTML (htmlEndPage, htmlMainPage)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import TicTacToe.Game
-import Web.Scotty
+  ( GameState (End, Proccess),
+    initialGameState,
+    stepPlayer,
+  )
+import Web.Scotty (get, html, queryParam, redirect, scotty)
 
 run :: IO ()
 run = do
